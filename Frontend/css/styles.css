@@ -1,0 +1,13 @@
+#container {
+    width: 80em;
+    margin: 0 auto;
+}
+
+#svgcontainer {
+    width: 100%;
+}
+
+
+#svgcontainer svg{
+    width: 100%;
+}
