@@ -62,12 +62,29 @@ function showAreas() {
   });
 }
 
-function showItems(items, fromDate, toDate) {
+
+const waitFor = (ms) => new Promise(r => setTimeout(r, ms))
+async function addDot(point) {
+
+  setTimeout(() => {
+    svg.append("circle")
+      .attr("cx", point[0])
+      .attr("cy", point[1])
+      .attr("r", 5)
+      .style("fill", "green")
+      .style("opacity", 0.3);
+
+  }, 15)
+  }
+
+async function showItems(items, fromDate, toDate) {
   fromDate = new Date(fromDate);
   toDate = new Date(toDate);
 
   items = JSON.parse(items);
   items = items.filter(item => new Date(item.timestamp) >= fromDate && new Date(item.timestamp) <= toDate);
+
+  items.map(async (item) => {await addDot(getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)))});
 
   let points = items.map(item => getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)));
 
