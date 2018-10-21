@@ -25,16 +25,33 @@ var svg = d3.select("#svgcontainer")
 showAreas();
 // loadItems("2018-07-01", "2018-07-05");
 
-function onButtonClick(event) {
+function onLoadButtonClick(event) {
   let fromDate = document.getElementById("fromDate").value;
   let toDate = document.getElementById("toDate").value;
 
   d3.select("#path").remove();
 
-  console.log(fromDate);
-  console.log(toDate);
-
   loadItems(fromDate, toDate);
+}
+
+function onPredictionButtonClick(event) {
+    let fromDate = document.getElementById("fromDate").value;
+    let toDate = document.getElementById("toDate").value;
+
+    d3.select("#path").remove();
+
+    loadPredictedItems(fromDate, toDate);
+}
+
+function loadPredictedItems(fromDate, toDate) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            showItems(this.responseText, fromDate, toDate, "green");
+        }
+    };
+    xhttp.open("GET", `http://localhost:8080/api/predictions`, true);
+    xhttp.send();
 }
 
 function getPointsArray(x,y) {
@@ -62,12 +79,14 @@ function showAreas() {
   });
 }
 
-function showItems(items, fromDate, toDate) {
+function showItems(items, fromDate, toDate, color="red") {
   fromDate = new Date(fromDate);
   toDate = new Date(toDate);
 
   items = JSON.parse(items);
   items = items.filter(item => new Date(item.timestamp) >= fromDate && new Date(item.timestamp) <= toDate);
+
+  console.log("items", items);
 
   let points = items.map(item => getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)));
 
@@ -75,8 +94,10 @@ function showItems(items, fromDate, toDate) {
       .attr("id", "path")
       .attr("points", points)
       .style("fill", "none")
-      .style("stroke", "red")
+      .style("stroke", color)
       .style("strokeWidth", "10px");
+
+  console.log("points", points);
 }
 
 function loadItems(fromDate, toDate) {
@@ -86,6 +107,6 @@ function loadItems(fromDate, toDate) {
      showItems(this.responseText, fromDate, toDate);
     }
   };
-  xhttp.open("GET", `http://localhost:8080/api/items?from=${fromDate}&to=${toDate}`, true);
+  xhttp.open("GET", `http://localhost:8080/api/items`, true);
   xhttp.send();
 }
