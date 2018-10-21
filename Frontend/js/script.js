@@ -65,7 +65,6 @@ function showAreas() {
 
 const waitFor = (ms) => new Promise(r => setTimeout(r, ms))
 async function addDot(point) {
-
   setTimeout(() => {
     svg.append("circle")
       .attr("cx", point[0])
@@ -74,8 +73,8 @@ async function addDot(point) {
       .style("fill", "green")
       .style("opacity", 0.15)
       .style("z-index", 2);
-  }, 30)
-  }
+  }, 45)
+}
 
 async function showItems(items, fromDate, toDate) {
   fromDate = new Date(fromDate);
@@ -94,7 +93,8 @@ async function showItems(items, fromDate, toDate) {
       .attr("points", points)
       .style("fill", "none")
       .style("stroke", "red")
-      .style("strokeWidth", "10px");
+      .style("strokeWidth", "10px")
+      .moveToBack();
   }, 1);
 }
 
