@@ -124,7 +124,6 @@ async function showItems(items, fromDate, toDate, color="red") {
     )});
 
   let points = items.map(item => getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)));
-/*
   setTimeout(() => {
     svg.append("polygon")
       .attr("id", "path")
@@ -132,7 +131,7 @@ async function showItems(items, fromDate, toDate, color="red") {
       .style("fill", "none")
       .style("stroke", color)
       .style("strokeWidth", "10px")
-  }, 1);*/
+  }, 1);
 }
 
 function loadItems(fromDate, toDate) {
