@@ -72,9 +72,8 @@ async function addDot(point) {
       .attr("cy", point[1])
       .attr("r", 5)
       .style("fill", "green")
-      .style("opacity", 0.3);
-
-  }, 15)
+      .style("opacity", 0.15);
+  }, 5)
   }
 
 async function showItems(items, fromDate, toDate) {
@@ -88,12 +87,14 @@ async function showItems(items, fromDate, toDate) {
 
   let points = items.map(item => getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)));
 
-  svg.append("polygon")
+  setTimeout(() => {
+    svg.append("polygon")
       .attr("id", "path")
       .attr("points", points)
       .style("fill", "none")
       .style("stroke", "red")
       .style("strokeWidth", "10px");
+  }, 1);
 }
 
 function loadItems(fromDate, toDate) {
