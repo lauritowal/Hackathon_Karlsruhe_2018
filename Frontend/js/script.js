@@ -72,8 +72,9 @@ async function addDot(point) {
       .attr("cy", point[1])
       .attr("r", 5)
       .style("fill", "green")
-      .style("opacity", 0.15);
-  }, 5)
+      .style("opacity", 0.15)
+      .style("z-index", 2);
+  }, 30)
   }
 
 async function showItems(items, fromDate, toDate) {
