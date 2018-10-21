@@ -7,7 +7,18 @@
 </head>
 <body>
     <div id="container">
-        <div id="svgcontainer"></div>
+        <div>
+            <span>
+                <label for="fromDate">From:</label>
+                <input id="fromDate" name="fromDate" type="date">
+            </span>
+            <span>
+                <label for="toDate">To:</label>
+                <input id="toDate" name="toDate" type="date">
+            </span>
+            <button onclick="onButtonClick()">Load</button>
+        </div>
+        <div id="svgcontainer" style="margin-top: 1em;"></div>
     </div>
 
     <script src="js/d3/d3.js"></script>

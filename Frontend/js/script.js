@@ -23,7 +23,23 @@ var svg = d3.select("#svgcontainer")
    .style("stroke-width", 2);
 
 showAreas();
-loadItems();
+// loadItems("2018-07-01", "2018-07-05");
+
+function onButtonClick(event) {
+  let fromDate = document.getElementById("fromDate").value;
+  let toDate = document.getElementById("toDate").value;
+
+  d3.select("#path").remove();
+
+  console.log(fromDate);
+  console.log(toDate);
+
+  loadItems(fromDate, toDate);
+}
+
+function getPointsArray(x,y) {
+  return [(x+(POINT_X_OFFSET))*POINT_MULTIPLIER , (y+(POINT_Y_OFFSET))*POINT_MULTIPLIER]
+}
 
 function showAreas() {
   AREAS.forEach(area => {
@@ -32,7 +48,7 @@ function showAreas() {
         let points = "";
         shape.coordinates.forEach(points => {
   
-        points = points.map(point => [(point[0]+(POINT_X_OFFSET))*POINT_MULTIPLIER , (point[1]+(POINT_Y_OFFSET))*POINT_MULTIPLIER]);
+        points = points.map(point => getPointsArray(point[0], point[1]));
   
         svg.append("polygon")
           .attr("points", points)
@@ -46,47 +62,30 @@ function showAreas() {
   });
 }
 
-function showItems(items) {
-  items = JSON.parse(items);
-  let points = [];
-  items.forEach(item => {
-    points.push([  (parseInt(item.x, 10) + POINT_X_OFFSET)*POINT_MULTIPLIER, (parseInt(item.y, 10) + POINT_Y_OFFSET)*POINT_MULTIPLIER])
-  });
+function showItems(items, fromDate, toDate) {
+  fromDate = new Date(fromDate);
+  toDate = new Date(toDate);
 
-  console.log("item.x+(100000))*POINT_MULTIPLIER", parseInt(items[0].x, 10));
-  console.log("item.x+(100000))*POINT_MULTIPLIER", parseInt(items[0].y, 10));
+  items = JSON.parse(items);
+  items = items.filter(item => new Date(item.timestamp) >= fromDate && new Date(item.timestamp) <= toDate);
+
+  let points = items.map(item => getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)));
 
   svg.append("polygon")
+      .attr("id", "path")
       .attr("points", points)
       .style("fill", "none")
       .style("stroke", "red")
       .style("strokeWidth", "10px");
 }
 
-function loadItems() {
+function loadItems(fromDate, toDate) {
   const xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-     console.log("response...");
-     // console.log(this.responseText);
-     showItems(this.responseText);
+     showItems(this.responseText, fromDate, toDate);
     }
   };
-  xhttp.open("GET", "http://localhost:8080/api/items", true);
+  xhttp.open("GET", `http://localhost:8080/api/items?from=${fromDate}&to=${toDate}`, true);
   xhttp.send();
 }
-
-/*svg.append("line")
-   .attr("x1", -width/VIEW_POINT_DIVIDER_X)
-   .attr("y1", 0)
-   .attr("x2", width/VIEW_POINT_DIVIDER_X)
-   .attr("y2", 0)  
-   .style("stroke", "rgb(255,0,0)");
-
-
-svg.append("line")
-.attr("x1", 0)
-.attr("y1", -height/VIEW_POINT_DIVIDER_Y)
-.attr("x2", 0)
-.attr("y2", height/VIEW_POINT_DIVIDER_Y)  
-.style("stroke", "rgb(255,0,0)");*/
