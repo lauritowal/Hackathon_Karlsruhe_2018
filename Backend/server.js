@@ -11,14 +11,22 @@ app.use(bodyParser.json());
 var port = process.env.PORT || 8080;
 var router = express.Router();
 
-var itemsJson = "test";
+var itemsJson = "";
+var predictionsJson = "";
 
 csv()
-.fromFile("data.csv")
-.then(function(jsonArrayObj){ 
-    console.log(jsonArrayObj); 
-    itemsJson = jsonArrayObj;
-});
+    .fromFile("data.csv")
+    .then(function(jsonArrayObj){
+        console.log(jsonArrayObj);
+        itemsJson = jsonArrayObj;
+    });
+
+csv()
+    .fromFile("predicted-data.csv")
+    .then(function(jsonArrayObj){
+        console.log(jsonArrayObj);
+        predictionsJson = jsonArrayObj;
+    });
 
 router.use(function(req, res, next) {
     console.log('Something is happening.');
@@ -30,10 +38,19 @@ router.get('/', function(req, res) {
 });
 
 router.route('/items')
-    // GET http://localhost:8080/api/items
+// GET http://localhost:8080/api/items
     .get(
         function(req, res) {
             res.json(itemsJson);
+        }
+    );
+
+
+router.route('/predictions')
+// GET http://localhost:8080/api/items
+    .get(
+        function(req, res) {
+            res.json(predictionsJson);
         }
     );
 

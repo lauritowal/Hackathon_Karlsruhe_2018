@@ -25,16 +25,34 @@ var svg = d3.select("#svgcontainer")
 showAreas();
 // loadItems("2018-07-01", "2018-07-05");
 
-function onButtonClick(event) {
+function onLoadButtonClick(event) {
   let fromDate = document.getElementById("fromDate").value;
   let toDate = document.getElementById("toDate").value;
 
+  svg.selectAll("circle").remove();
   d3.select("#path").remove();
 
-  console.log(fromDate);
-  console.log(toDate);
-
   loadItems(fromDate, toDate);
+}
+
+function onPredictionButtonClick(event) {
+    let fromDate = document.getElementById("fromDate").value;
+    let toDate = document.getElementById("toDate").value;
+
+    d3.select("#path").remove();
+
+    loadPredictedItems(fromDate, toDate);
+}
+
+function loadPredictedItems(fromDate, toDate) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            showItems(this.responseText, fromDate, toDate, "green");
+        }
+    };
+    xhttp.open("GET", `http://localhost:8080/api/predictions`, true);
+    xhttp.send();
 }
 
 function getPointsArray(x,y) {
@@ -62,40 +80,59 @@ function showAreas() {
   });
 }
 
-
 const waitFor = (ms) => new Promise(r => setTimeout(r, ms))
-async function addDot(point) {
+async function addDot(point, color = red, address, z) {
   setTimeout(() => {
     svg.append("circle")
       .attr("cx", point[0])
       .attr("cy", point[1])
       .attr("r", 5)
-      .style("fill", "green")
+      .on("mouseout", function() {
+        this.style.fill = color;
+        this.style.opacity = 0.15;
+      })
+      .on("mouseover", function() {
+        this.style.fill = "blue";
+        this.style.opacity = 1;
+        document.getElementById('info').innerHTML = `
+          <h5>Spot Info</h5>
+          <b>Address</b> ${address}<br>
+          <b>Process (demo)</b> FI3MEGH<br>
+          <b>X</b> ${point[0]}
+          <b>Y</b> ${point[1]}
+          <b>Z</b> ${(z+(POINT_X_OFFSET))*POINT_MULTIPLIER}
+        `;
+      })
+      .style("fill", color)
       .style("opacity", 0.15)
       .style("z-index", 2);
-  }, 45)
+  }, 30)
 }
 
-async function showItems(items, fromDate, toDate) {
+async function showItems(items, fromDate, toDate, color="red") {
   fromDate = new Date(fromDate);
   toDate = new Date(toDate);
 
   items = JSON.parse(items);
   items = items.filter(item => new Date(item.timestamp) >= fromDate && new Date(item.timestamp) <= toDate);
 
-  items.map(async (item) => {await addDot(getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)))});
+  items.map(async (item) => {await addDot(
+    getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)),
+    color,
+    item.address,
+    item.z
+    )});
 
   let points = items.map(item => getPointsArray(parseInt(item.x, 10), parseInt(item.y, 10)));
-
+/*
   setTimeout(() => {
     svg.append("polygon")
       .attr("id", "path")
       .attr("points", points)
       .style("fill", "none")
-      .style("stroke", "red")
+      .style("stroke", color)
       .style("strokeWidth", "10px")
-      .moveToBack();
-  }, 1);
+  }, 1);*/
 }
 
 function loadItems(fromDate, toDate) {
@@ -105,6 +142,6 @@ function loadItems(fromDate, toDate) {
      showItems(this.responseText, fromDate, toDate);
     }
   };
-  xhttp.open("GET", `http://localhost:8080/api/items?from=${fromDate}&to=${toDate}`, true);
+  xhttp.open("GET", `http://localhost:8080/api/items`, true);
   xhttp.send();
 }
