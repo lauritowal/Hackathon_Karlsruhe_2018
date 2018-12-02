@@ -19,8 +19,9 @@ def count_tot_seconds(target_date):
 
     return timedelta.days * 24 * 3600 + timedelta.seconds
 
-
 def forecast(checkpoint_path, data, target_date):
+
+    
 
     # Data preprocessing
 
@@ -102,12 +103,12 @@ def forecast(checkpoint_path, data, target_date):
     x = np.expand_dims(x, axis=0)
 
     # Use the model to predict the output-signals.
-    y_pred = model.predict(x_test_scaled)
+    y_pred = model.predict(x)
 
     # The output of the model is between 0 and 1.
     # Do an inverse map to get it back to the scale
     # of the original data-set.
-    y_pred_rescaled = y_scaler.inverse_transform(y_pred[0])
+    y_pred_rescaled = x_scaler.inverse_transform(y_pred[0])
 
     # pred_dict = {i: None for i in target_names}
 
@@ -117,8 +118,12 @@ def forecast(checkpoint_path, data, target_date):
     #     signal_pred = y_pred_rescaled[:, signal]
     #     # pred_dict[target_names[signal] = signal_pred
 
-    return pred_dict
+    # np.savetxt('predicted.csv',y_pred_rescaled,delimiter= ",")
+    #Creating pandas dataframe from numpy array
+    predictions = pd.DataFrame({'x':y_pred_rescaled[:,0],'y':y_pred_rescaled[:,1],'z':y_pred_rescaled[:,2]})
 
-pred_dict = forecast('24_checkpoint.keras', 'data.csv', '2018-12-03 00:00:00')
+    predictions.to_json("predictions.JSON")
 
-print(pred_dict)
+    return None
+
+forecast('24_checkpoint.keras', 'data.csv', '2018-12-03 00:00:00')
