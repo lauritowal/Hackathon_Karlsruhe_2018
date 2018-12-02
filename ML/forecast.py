@@ -7,15 +7,15 @@ from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Input, Dense, GRU, Embedding
 from tensorflow.python.keras.optimizers import RMSprop
 from tensorflow.python.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard, ReduceLROnPlateau
-from datetime import datetime, time
-
+import datetime
+from datetime import time, timedelta, datetime
+import json
 
 def count_tot_seconds(target_date):
 
     current_time = datetime.now()
 
-    timedelta = current_time - datetime.strptime(target_date,
-                                                 '%Y-%m-%d %H:%M:%S')
+    timedelta = datetime.strptime(target_date,'%Y-%m-%d %H:%M:%S') - current_time 
 
     return timedelta.days * 24 * 3600 + timedelta.seconds
 
@@ -120,9 +120,20 @@ def forecast(checkpoint_path, data, target_date):
 
     # np.savetxt('predicted.csv',y_pred_rescaled,delimiter= ",")
     #Creating pandas dataframe from numpy array
-    predictions = pd.DataFrame({'x':y_pred_rescaled[:,0],'y':y_pred_rescaled[:,1],'z':y_pred_rescaled[:,2]})
+    predictions = pd.DataFrame(y_pred_rescaled)
+    
+    timestamp = []
 
-    predictions.to_json("predictions.JSON")
+    time = datetime(2018,12,3,0,0,0)
+    for i in range(length): 
+        time += timedelta(seconds=1)
+        timestamp.append(str(time))
+
+    timestamps = pd.Series(timestamp)
+
+    predictions['timestamp'] = timestamps.values
+    np.savetxt("predictions.csv", predictions, delimiter=",", fmt='%s')
+    
 
     return None
 
