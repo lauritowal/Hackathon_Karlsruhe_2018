@@ -10,7 +10,9 @@ def get_prediction():
     #result = forecast("../rnn/24_checkpoint.keras", "../rnn/data.csv",
     #                  "2019-02-10 10:10:10")
 
-    return jsonify(forecast("banana", "badasd", "dadas"))
+    return jsonify(
+        forecast("../rnn/24_checkpoint.keras", "../rnn/data.csv",
+                 "2019-01-01 10:10:10"))
 
 
 if __name__ == '__main__':
