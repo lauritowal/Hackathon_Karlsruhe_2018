@@ -24,8 +24,33 @@ def forecast(checkpoint_path, data, target_date):
 
     # Data preprocessing
 
+    data = pd.read_csv(data)
+
+    data = data.values
+    data = data[:,2:]
+    data = data[:,:-1:]
+    
     x_scaler = MinMaxScaler()
-    x = x_scaler.fit_transform(data)
+    
+    # Choosing only last 0.1 times steps as input data for forecasting
+
+    train_split = 0.9
+    num_train = int(train_split * len(data))
+    num_test = len(data) - num_train
+
+    x_train = data[0:num_train]
+    x_test = data[num_train:]
+
+    num_x_signals = x_train.shape[1]
+    num_y_signals = num_x_signals
+
+
+    x_train_scaled = x_scaler.fit_transform(x_train)
+    x_test_scaled = x_scaler.transform(x_test)
+
+    # y_scaler = MinMaxScaler()
+    # y_train_scaled = y_scaler.fit_transform(y_train)
+    # y_test_scaled = y_scaler.transform(y_test)
 
     # Load the model
     model = Sequential()
@@ -39,15 +64,15 @@ def forecast(checkpoint_path, data, target_date):
 
     model.add(Dense(num_y_signals, activation='sigmoid'))
 
+    
     if False:
-
         from tensorflow.python.keras.initializers import RandomUniform
 
         init = RandomUniform(minval=-0.05, maxval=0.05)
 
-    # Output later initializer
-    model.add(
-        Dense(num_y_signals, activation='linear', kernel_initializer=init))
+        # Output later initializer
+        model.add(
+            Dense(num_y_signals, activation='linear', kernel_initializer=init))
 
     warmup_steps = 50
 
@@ -55,7 +80,7 @@ def forecast(checkpoint_path, data, target_date):
     # Note that above initialized weights will be ignored
 
     try:
-        model.load_weights(path_checkpoint)
+        model.load_weights(checkpoint_path)
     except Exception as error:
         print("Error trying to load checkpoint.")
         print(error)
@@ -72,11 +97,12 @@ def forecast(checkpoint_path, data, target_date):
     end_idx = start_idx + length
 
     # Input-signals for the model.
-    x = x[start_idx:end_idx]
+    x = x_test_scaled[start_idx:end_idx]
+    
     x = np.expand_dims(x, axis=0)
 
     # Use the model to predict the output-signals.
-    y_pred = model.predict(x)
+    y_pred = model.predict(x_test_scaled)
 
     # The output of the model is between 0 and 1.
     # Do an inverse map to get it back to the scale
@@ -92,3 +118,7 @@ def forecast(checkpoint_path, data, target_date):
         # pred_dict[target_names[signal] = signal_pred
 
         return pred_dict
+
+pred_dict = forecast('24_checkpoint.keras', 'data.csv', '2018-12-03 00:00:00')
+
+print(pred_dict)
