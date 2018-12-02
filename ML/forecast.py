@@ -12,52 +12,53 @@ from datetime import datetime, time
 
 def count_tot_seconds(target_date):
 
-	current_time = datetime.now()
+    current_time = datetime.now()
 
-	timedelta = current_time - datetime.strptime(target_date, '%Y-%m-%d %H:%M:%S')
+    timedelta = current_time - datetime.strptime(target_date,
+                                                 '%Y-%m-%d %H:%M:%S')
 
-	return timedelta.days * 24 * 3600 + timedelta.seconds
-
-
-def forecast(checkpoint_path,data,target_date):
+    return timedelta.days * 24 * 3600 + timedelta.seconds
 
 
-	# Data preprocessing
+def forecast(checkpoint_path, data, target_date):
 
-	x_scaler = MinMaxScaler()
+    # Data preprocessing
+
+    x_scaler = MinMaxScaler()
     x = x_scaler.fit_transform(data)
-    
+
     # Load the model
-	model = Sequential()
-	model.add(GRU(units=512,
-              return_sequences=True,
-              input_shape=(None, num_x_signals,)))
+    model = Sequential()
+    model.add(
+        GRU(units=512,
+            return_sequences=True,
+            input_shape=(
+                None,
+                num_x_signals,
+            )))
 
-	model.add(Dense(num_y_signals, activation='sigmoid'))
+    model.add(Dense(num_y_signals, activation='sigmoid'))
 
+    if False:
 
-	if False:
-    
-    	from tensorflow.python.keras.initializers import RandomUniform
+        from tensorflow.python.keras.initializers import RandomUniform
 
-    	init = RandomUniform(minval=-0.05, maxval=0.05)
+        init = RandomUniform(minval=-0.05, maxval=0.05)
 
     # Output later initializer
-    model.add(Dense(num_y_signals,
-                    activation='linear',
-                    kernel_initializer=init))
+    model.add(
+        Dense(num_y_signals, activation='linear', kernel_initializer=init))
 
     warmup_steps = 50
-
 
     # Load the weights
     # Note that above initialized weights will be ignored
 
     try:
-    	model.load_weights(path_checkpoint)
-	except Exception as error:
-    	print("Error trying to load checkpoint.")
-    	print(error)
+        model.load_weights(path_checkpoint)
+    except Exception as error:
+        print("Error trying to load checkpoint.")
+        print(error)
 
     # PREDICT
 
@@ -66,14 +67,14 @@ def forecast(checkpoint_path,data,target_date):
 
     # Count lenght of forecast that corresponds to number of seconds between the currrent time and the target time
     length = count_tot_seconds(target_date)
-    
+
     # End-index for the sequences.
     end_idx = start_idx + length
 
     # Input-signals for the model.
     x = x[start_idx:end_idx]
     x = np.expand_dims(x, axis=0)
-    
+
     # Use the model to predict the output-signals.
     y_pred = model.predict(x)
 
@@ -82,19 +83,12 @@ def forecast(checkpoint_path,data,target_date):
     # of the original data-set.
     y_pred_rescaled = y_scaler.inverse_transform(y_pred[0])
 
+    pred_dict = {i: None for i in target_names}
 
-    pred_dict = {i: None for i in target_names} 
-    
     # For each output-signal.
     for signal in range(len(target_names)):
         # Get the output-signal predicted by the model.
         signal_pred = y_pred_rescaled[:, signal]
-        pred_dict[target_names[signal] = signal_pred
-	
-	return pred_dict
+        # pred_dict[target_names[signal] = signal_pred
 
-
-
-
-
-
+        return pred_dict
