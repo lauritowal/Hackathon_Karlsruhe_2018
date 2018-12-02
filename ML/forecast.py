@@ -25,7 +25,7 @@ def forecast(checkpoint_path, data, target_date):
     # Data preprocessing
 
     data = pd.read_csv(data)
-
+    target_names = list(data)
     data = data.values
     data = data[:,2:]
     data = data[:,:-1:]
@@ -109,15 +109,15 @@ def forecast(checkpoint_path, data, target_date):
     # of the original data-set.
     y_pred_rescaled = y_scaler.inverse_transform(y_pred[0])
 
-    pred_dict = {i: None for i in target_names}
+    # pred_dict = {i: None for i in target_names}
 
-    # For each output-signal.
-    for signal in range(len(target_names)):
-        # Get the output-signal predicted by the model.
-        signal_pred = y_pred_rescaled[:, signal]
-        # pred_dict[target_names[signal] = signal_pred
+    # # For each output-signal.
+    # for signal in range(len(target_names)):
+    #     # Get the output-signal predicted by the model.
+    #     signal_pred = y_pred_rescaled[:, signal]
+    #     # pred_dict[target_names[signal] = signal_pred
 
-        return pred_dict
+    return pred_dict
 
 pred_dict = forecast('24_checkpoint.keras', 'data.csv', '2018-12-03 00:00:00')
 
