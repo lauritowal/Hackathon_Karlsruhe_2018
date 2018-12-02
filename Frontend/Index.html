@@ -10,16 +10,27 @@
         <div>
             <span>
                 <label for="fromDate">From:</label>
-                <input id="fromDate" name="fromDate" type="date">
+                <input id="fromDate" name="fromDate" type="date" value="2018-10-01">
             </span>
             <span>
                 <label for="toDate">To:</label>
-                <input id="toDate" name="toDate" type="date">
+                <input id="toDate" name="toDate" type="date" value="2018-10-31">
+            </span>
+            <span>
+                <label for="Address">Address:</label>
+                <select name="Address" id="Address">
+                    <option value="-6196490120761152012" selected>-6196490120761152012</option>
+                </select>
             </span>
             <button onclick="onLoadButtonClick()">Load</button>
             <button onclick="onPredictionButtonClick()">Load Prediction</button>
         </div>
-        <div id="svgcontainer" style="margin-top: 1em;"></div>
+        <div id="field">
+            <div id="svgcontainer" style="margin-top: 1em;"></div>
+            <div id="info">
+                <h5>Spot Info</h5>
+            </div>
+        </div>
     </div>
 
     <script src="js/d3/d3.js"></script>
